@@ -85,9 +85,9 @@ export function RegisterScreen() {
         setErrors({ general: result.message })
       }
     } catch (error) {
-  console.log(error)
-
-      setErrors({ general: "An unexpected error occurred. Please try again." })
+  
+setErrors(error)
+     // setErrors({ general: "An unexpected error occurred. Please try again." })
     } finally {
       setIsLoading(false)
     }
