@@ -71,12 +71,12 @@ export function RegisterScreen() {
     setErrors({})
 
     try {
-    const result = await AuthService.registerUser(
-  formData.username,
-  formData.email,
-  formData.phone,
-  formData.password,
-)
+      const result = await AuthService.registerUser(
+        formData.username,
+        formData.email,
+        formData.phone,
+        formData.password,
+      )
 
       if (result.success) {
         // Registration successful, move to login
@@ -84,12 +84,11 @@ export function RegisterScreen() {
       } else {
         setErrors({ general: result.message })
       }
-} catch (error) {
-
-  setErrors({ general: "An unexpected error occurred. Please try again." })
-} finally {
-  setIsLoading(false)
-}
+    } catch (error) {
+      setErrors({ general: "An unexpected error occurred. Please try again." })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleInputChange = (field: string, value: string) => {

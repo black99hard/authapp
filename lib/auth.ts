@@ -2,7 +2,6 @@ import bcrypt from "bcryptjs"
 import crypto from "crypto"
 import { v4 as uuidv4 } from "uuid"
 
-
 export interface User {
   id: string
   username: string
@@ -43,8 +42,7 @@ const securitySettings: Map<string, SecuritySettings> = new Map()
 export class AuthService {
   // Generate a random 6-digit OTP
   static generateOTP(): string {
-     return Math.floor(100000 + Math.random() * 900000).toString()
-    // return Math.floor(100000 + Math.random() * 900000).toString()
+    return Math.floor(100000 + Math.random() * 900000).toString()
   }
 
   // Hash password using bcrypt
@@ -74,7 +72,7 @@ export class AuthService {
     }
 
     // Create new user
-    const userId = uuidv4()
+const userId = uuidv4()
     const passwordHash = await this.hashPassword(password)
 
     const newUser: User = {
@@ -147,6 +145,9 @@ export class AuthService {
 
     // Clear lockout on successful login
     accountLockouts.delete(user.id)
+
+    // Store user for biometric authentication on successful login
+    this.storeUserForBiometric(user.id)
 
     return { success: true, message: "Login successful", userId: user.id }
   }
@@ -237,5 +238,67 @@ export class AuthService {
   static updateSecuritySettings(userId: string, settings: Partial<SecuritySettings>): void {
     const current = this.getSecuritySettings(userId)
     securitySettings.set(userId, { ...current, ...settings })
+  }
+
+  // Store user in localStorage for biometric authentication
+  static storeUserForBiometric(userId: string): void {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("biometric_user_id", userId)
+    }
+  }
+
+  // Get stored user for biometric authentication
+  static getStoredBiometricUser(): string | null {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("biometric_user_id")
+    }
+    return null
+  }
+
+  // Remove stored biometric user
+  static removeStoredBiometricUser(): void {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("biometric_user_id")
+    }
+  }
+
+  // Biometric authentication using stored user
+  static authenticateWithBiometric(): { success: boolean; message: string; userId?: string } {
+    const storedUserId = this.getStoredBiometricUser()
+
+    if (!storedUserId) {
+      return {
+        success: false,
+        message: "No biometric user found. Please login with username and password first.",
+      }
+    }
+
+    const user = this.getUser(storedUserId)
+    if (!user) {
+      // Clean up invalid stored user
+      this.removeStoredBiometricUser()
+      return {
+        success: false,
+        message: "Stored user not found. Please login with username and password.",
+      }
+    }
+
+    // Record successful biometric login attempt
+    const attempt: LoginAttempt = {
+      timestamp: new Date(),
+      success: true,
+      ipAddress: "biometric",
+      userAgent: "biometric-auth",
+    }
+
+    const userAttempts = loginAttempts.get(storedUserId) || []
+    userAttempts.push(attempt)
+    loginAttempts.set(storedUserId, userAttempts.slice(-10))
+
+    return {
+      success: true,
+      message: "Biometric authentication successful",
+      userId: storedUserId,
+    }
   }
 }

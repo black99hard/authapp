@@ -22,6 +22,7 @@ import {
 import { AuthService } from "@/lib/auth"
 import { useAuth } from "@/hooks/use-auth"
 import { SecurityDashboard } from "./security-dashboard"
+import { WorkflowDemo } from "./workflow-demo"
 
 export function Dashboard() {
   const { userId, logout } = useAuth()
@@ -126,7 +127,7 @@ export function Dashboard() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Overview
@@ -138,6 +139,10 @@ export function Dashboard() {
             <TabsTrigger value="activity" className="flex items-center gap-2">
               <History className="h-4 w-4" />
               Activity
+            </TabsTrigger>
+            <TabsTrigger value="workflow" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              How It Works
             </TabsTrigger>
           </TabsList>
 
@@ -276,6 +281,10 @@ export function Dashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="workflow">
+            <WorkflowDemo />
           </TabsContent>
         </Tabs>
 
