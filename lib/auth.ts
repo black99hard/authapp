@@ -1,5 +1,7 @@
 import bcrypt from "bcryptjs"
 import crypto from "crypto"
+import { v4 as uuidv4 } from "uuid"
+
 
 export interface User {
   id: string
@@ -72,7 +74,7 @@ export class AuthService {
     }
 
     // Create new user
-    const userId = crypto.randomUUID()
+    const userId = uuidv4()
     const passwordHash = await this.hashPassword(password)
 
     const newUser: User = {
